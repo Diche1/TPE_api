@@ -3,9 +3,7 @@
 class ModelApi
 {
 
-    /* protected $db;
-    private $adminUserPw = '$2y$10$FF6r02TU9nzHXMJwm6jEo.UpI6RWVVuNc.kFZrAh9PIcADEcp2v2u';
-    private $adminApiKey = '$2y$10$w6ATQYSLhFjFPaEbCIa3UuASUAaEehwsl4msp4FrjfRAfdKZ8nS1y'; */
+
     private $PDO;
     /*                  Creamos el contructor PDO, para reutilizar               */
     function __construct()
@@ -131,16 +129,16 @@ class ModelApi
     }
 
     // AGREGAR PRODUCTOS 
-    function añadirProductos($id_marca, $potencia, $velocidad, $voltaje, $frecuencia)
+    function agregarProductos($id_marca, $potencia, $velocidad, $voltaje, $frecuencia)
     {
-        $sentencia = "INSERT INTO productos (Id_marca,Potencia,Velocidad,Voltaje,Frecuencia)
-                VALUES (?,?,?,?,?)";
+        $sentencia="INSERT INTO productos (Id_marca,Potencia,Velocidad,Voltaje,Frecuencia)
+                    VALUES (?,?,?,?,?)";
         $query = $this->PDO->prepare($sentencia);
         $query->execute([$id_marca, $potencia, $velocidad, $voltaje, $frecuencia]);
     }
     // AGREGAR MARCAS 
 
-    function añadirMarcas($fabricante)
+    function agregarMarcas($fabricante)
     {
         $sentencia = "INSERT INTO marcas(Fabricante)
                 VALUES (?)";

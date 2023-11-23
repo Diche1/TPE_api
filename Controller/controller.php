@@ -34,7 +34,6 @@ class motoresControlador
     {
         $parametros = file_get_contents("php://input");
         return json_decode($parametros);
-
     }
 
     /*     El servicio que lista una colección entera debe poder ordenarse opcionalmente por al
@@ -109,73 +108,96 @@ class motoresControlador
 
     function modificarProducto($id)
     {
-        if ($this->validar()) {
-            // de alguna forma preguntar si es admin
+        $parametros = $this->obtenerDatos();
+        //verificar que completa todos los datos
+        if (
+            !empty($parametros) &&
+            isset($parametros->id_marca) &&
+            isset($parametros->potencia) &&
+            isset($parametros->velocidad) &&
+            isset($parametros->voltaje) &&
+            isset($parametros->frecuencia)
+        ) {
 
-            $parametros = $this->obtenerDatos();
-            //verificar que completa todos los datos
-            if (
-                !empty($parametros) &&
-                isset($parametros->id_marca) &&
-                isset($parametros->potencia) &&
-                isset($parametros->velocidad) &&
-                isset($parametros->voltaje) &&
-                isset($parametros->frecuencia)
-            ) {
+            $id_marca = $parametros->id_marca;
+            $potencia = $parametros->potencia;
+            $velocidad = $parametros->velocidad;
+            $voltaje = $parametros->voltaje;
+            $frecuencia = $parametros->frecuencia;
 
-                $id_marca = $parametros->id_marca;
-                $potencia = $parametros->potencia;
-                $velocidad = $parametros->velocidad;
-                $voltaje = $parametros->voltaje;
-                $frecuencia = $parametros->frecuencia;
-
-                // Añado el producto a la BD.
-                $this->model->editProductos($id, $id_marca, $potencia, $velocidad, $voltaje, $frecuencia);
-                $this->view->response("el articulo $id fue colocado correctamente", 201);
-            } else {
-                $this->view->response("Ocurrio un error.", 404);
-            }
+            // Añado el producto a la BD.
+            $this->model->editProductos($id, $id_marca, $potencia, $velocidad, $voltaje, $frecuencia);
+            $this->view->response("el articulo $id fue colocado correctamente", 201);
         } else {
-            //no tiene permisos
-            $this->view->response("No tiene permisos para realizar esta accion.", 401);
+            $this->view->response("Ocurrio un error.", 404);
         }
     }
+
     function modificarMarcas()
     {
-        if ($this->validar()) {
-            // de alguna forma preguntar si es admin
 
-            $parametros = $this->obtenerDatos();
-            //verificamos que el post no este vacio y traiga todo.
-            if (!empty($parametros) && isset($parametros->Fabricante) && isset($parametros->Id)) {
-                $fabricante = $parametros->Fabricante;
-                $id = $parametros->id;
-                $this->model->editMarcas($id, $fabricante);
-                $this->view->response("La categoria $id fue modificada con exito, ahora se llama $fabricante.", 201);
+        $parametros = $this->obtenerDatos();
+        //verificamos que el post no este vacio y traiga todo.
+        if (
+            !empty($parametros) &&
+            isset($parametros->Fabricante) &&
+            isset($parametros->Id)
+        ) {
+            $fabricante = $parametros->Fabricante;
+            $id = $parametros->id;
+            $this->model->editMarcas($id, $fabricante);
+            $this->view->response("La categoria $id fue modificada con exito, ahora se llama $fabricante.", 201);
 
-            } else {
-                //SI FALTA ALGUN DATO, NO ANDA
-                $this->view->response("Ha ocurrido un error", 400);
-            }
-        } else //NO TIENE PERMISOS
-            $this->view->response("No tiene permisos para realizar esta acción", 401);
-    }
-
-
-
-// falta los agregar productos y marcas.
-
-// generar el apikey 
-
-
-    function validar()
-    {
-        $existe = false;
-        if (isset($_SERVER['HTTP_APIKEY'])) {
-            $clave = $_SERVER['HTTP_APIKEY'];
-            $existe = $this->model->isValidApiKey($clave);
+        } else {
+            //SI FALTA ALGUN DATO, NO ANDA
+            $this->view->response("Ha ocurrido un error", 400);
         }
-        return $existe;
+    }
+    function agregarProducto()
+    {
+
+        $parametros = $this->obtenerDatos();
+        //verificamos si el post no está vacío y si trae todos los datos requeridos
+        if (
+            !empty($parametros) &&
+            isset($parametros->id_marca) &&
+            isset($parametros->potencia) &&
+            isset($parametros->velocidad) &&
+            isset($parametros->voltaje) &&
+            isset($parametros->frecuencia)
+        ) {
+            $id_marca = $parametros->id_marca;
+            $potencia = $parametros->potencia;
+            $velocidad = $parametros->velocidad;
+            $voltaje = $parametros->voltaje;
+            $frecuencia = $parametros->frecuencia;
+            //añado el producto.
+            $this->model->agregarProductos($id_marca, $potencia, $velocidad, $voltaje, $frecuencia);
+            $producto="motor";
+            $this->view->response($producto . " añadido con éxito.", 201);
+        } else {
+            //si faltó algun dato, doy error.
+            $this->view->response("Ha ocurrido un error", 400);
+        }
+    }
+    function agregarMarcas()
+    {   
+            $params = $this->obtenerDatos();
+            //verificamos si el post no está vacío y si trae todos los datos requeridos
+            if (!empty($parametros) && 
+                isset($parametros->fabricante)) {
+                $fabricante = $parametros->fabricante;
+                //añado la categoria.
+                 $fabricante= $this->model->agregarMarcas($fabricante);
+                if (!$cat) {
+                    $this->model->addCategory($tipo);
+                    $this->view->response($tipo . " añadido con éxito.", 201);
+                } else {
+                    $this->view->response("La categoría ya existe", 500);
+                }
+            } else {
+                //si faltó algun dato, doy error.
+                $this->view->response("Ha ocurrido un error", 400);}
+        
     }
 }
-
